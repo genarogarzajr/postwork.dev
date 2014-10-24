@@ -1,0 +1,160 @@
+<?php
+ini_set('display_errors',1);
+ini_set('display_startup_errors',1);
+error_reporting(-1);
+?>
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Exam 2</title>
+</head>
+
+<body>
+
+<div>
+<h1>Upcoming Events</h1>
+
+
+	<table border='1'>
+  <tr>
+    <th>thumbnail</th>
+    <th>overview</th>
+  </tr>
+ 
+
+
+<!-- filter by  -->
+Filter by Age<p>
+
+<form action="">
+<select name="age" onchange="this.form.submit()">
+<option value="0">All ages</option>
+<option value="5">Adult</option>	
+<option value="6">Teen</option>
+<option value="7">Kids</option>
+</select>
+<p>
+Filter by Month<p>
+
+<form action="">
+<select name="month" onchange="this.form.submit()">
+<option value="All Months">All Dates</option>
+<option value="jan">January</option>
+<option value="feb">February</option>
+<option value="mar">March</option>
+<option value="apr">april</option>
+<option value="may">May</option>
+<option value="jun">June</option>
+<option value="jul">July</option>
+<option value="aug">August</option>
+<option value="sep">September</option>
+<option value="oct">October</option>
+<option value="nov">November</option>
+<option value="dec">December</option>
+</select>
+
+</form>
+<p>
+
+
+
+
+<?php
+//establish mysql connection here
+$host = '127.0.0.1';
+$username = 'genaro';
+$pass = '';
+
+mysql_connect($host,$username,$pass);
+mysql_select_db("364080_esdwebtest");
+
+// error msg if no connection
+if(!mysql_connect($host,$username,$pass)){
+
+	echo "could not connect to mysql";
+	exit;
+}
+
+
+
+//sets variables to pass into mysql query
+$age = $_GET[age];
+$date = $_GET[month];
+
+
+
+//run mysql query
+$query = "SELECT a.painting_id, a.start_date, a.type_id, b.id, b.image 
+FROM trc_events a, trc_paintings b
+WHERE a.painting_id = b.id AND a.type_id=$age";
+
+$result = mysql_query($query);
+
+
+// gets number of ROWS from query
+$rows = mysql_num_rows($result);
+
+
+
+// number of rows per page set by user
+$page_rows = 12;
+//Gets number of PAGES from query based on # rows set by user
+$numpages = ceil($rows/$page_rows);
+
+// gets last page number
+$last = ceil($rows/$page_rows);
+var_dump($last);
+
+
+
+if (isset($_GET['page']))
+	{
+		$page=$_GET['page'];	
+	}
+		else
+		{
+		$page=1;
+		}
+		
+$nextpage = $page + 1;
+$prevpage = $page - 1;
+
+
+
+
+//start loop
+while($row = mysql_fetch_array($result)) 
+	{
+	echo "<tr>";
+	echo "<td><img src=" . "/painting_images/" . $row['image'] . ">" . "</td>";
+	echo "<td>" . $row['start_date'] . " " . $row['type_id'] . "</td>";
+	echo "</tr>";
+	}
+?>
+
+</table>
+
+<!-- adds prev and next buttons -->
+<ul>
+<?php if ($page > 1){?>
+	<li class="previous"> <a href="?page=<?php $prevpage ?>"&rarr; Previous</a> </li>
+<?php }?>
+<?php if ($page < $numpages){ ?>
+	<li class="next"> <a href="?page=<?php $nextpage ?>"&rarr; Next</a> </li>
+<?php }?>  
+</ul>
+
+<?php var_dump($rows);?>
+<?php var_dump($numpages)?>
+
+
+
+
+
+</div>
+	
+
+
+</body>
+</html>
